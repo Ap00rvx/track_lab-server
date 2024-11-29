@@ -15,17 +15,20 @@ const organizationSchema = new mongoose.Schema({
         street: {
             type: String,
             trim: true,
-            required: true
+            required: false,
+            default: ''
         },
         city: {
             type: String,
             trim: true,
-            required: true
+            required: false,
+            default: ''
         },
         state: {
             type: String,
             trim: true,
-            required: true
+            required: false,default: '',
+
         },
         postalCode: {
             type: String,
@@ -42,23 +45,28 @@ const organizationSchema = new mongoose.Schema({
         phone: {
             type: String,
             trim: true,
-            required: false
+            required: false,
+            default: ''
+
         },
         email: {
             type: String,
             trim: true,
-            required: false
+            required: true
         },
         website: {
             type: String,
             trim: true,
-            required: false
+            required: false,
+            default: ''
         }
     },
     logo: {
         type: String,
         trim: true,
-        required: false // URL or path to the logo image
+        required: false,
+        default: ''
+         // URL or path to the logo image
     },
     members: [
         {
@@ -72,6 +80,12 @@ const organizationSchema = new mongoose.Schema({
             ref: 'Project'
         }
     ],
+    admins:[
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'User'
+        }
+    ],
     createdBy: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
@@ -79,12 +93,14 @@ const organizationSchema = new mongoose.Schema({
     },
     establishedDate: {
         type: Date,
-        required: false
+        required: false,
+        default: Date.now
     },
     industry: {
         type: String,
         trim: true,
-        required: false
+        required: false,
+        default: ''
     },
     tags: [
         {
@@ -93,7 +109,7 @@ const organizationSchema = new mongoose.Schema({
         }
     ]
 }, {
-    timestamps: true // Automatically adds createdAt and updatedAt fields
+    timestamps: true 
 });
 
 module.exports = mongoose.model('Organization', organizationSchema);

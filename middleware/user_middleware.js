@@ -8,9 +8,9 @@ const userMiddleware = async (req,res,next )=> {
     }else{
         try {
             const user= jsonwebtoken.verify(token, process.env.JWT_SECRET);
-            console.log(user.user.id);
+            // console.log(user.user.id);
             req.user = await User.findById(user.user.id).select('-password');
-            console.log(req.user);
+            // console.log(req.user);
             next(); 
         }catch(err){
             console.log(err);

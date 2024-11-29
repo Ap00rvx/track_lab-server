@@ -11,6 +11,16 @@ const projectSchema = new mongoose.Schema({
         trim: true,
         default: ''
     },
+    link:{
+        type: String,
+        required: false,
+        trim:false
+    },
+    version:{
+        type: String,
+        required: false,  
+    },
+    
     startDate: {
         type: Date,
         required: true
