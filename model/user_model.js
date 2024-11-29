@@ -3,6 +3,12 @@ const bcrypt = require('bcrypt');
 
 const UserSchema = new mongoose.Schema(
   {
+    username:{
+        type: String,
+        required: true,
+        trim: true,
+        unique:true, 
+    },
     name: {
       type: String,
       required: true,
@@ -35,15 +41,16 @@ const UserSchema = new mongoose.Schema(
       trim: true,
     },
     organizationId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Organization',
-      required: true,
+     type :String,
+      default: null, 
+      required: false,
     },
     projectIds: [
       {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Project',
         required: true,
+        default:[]
       },
     ],
     issueAssignedId: [
@@ -51,6 +58,7 @@ const UserSchema = new mongoose.Schema(
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Issue',
         required: true,
+        default:[]
       },
     ],
   },
