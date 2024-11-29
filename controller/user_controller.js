@@ -64,19 +64,15 @@ exports.loginUser = async (req, res) => {
     const { email, password } = req.body;
 
     try {
-        // Check if the user exists
+      
         let user = await User.findOne({ email });
         if (!user) {
             return res.status(404).json({ error: 'User not found' }); 
         }
-
-        // Compare password
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
             return res.status(401).json({ error: 'Invalid credentials' }); 
         }
-
-        // Generate JWT payload
         const payload = {
             user: {
                 id: user._id,
@@ -86,8 +82,6 @@ exports.loginUser = async (req, res) => {
                 organizationId: user.organizationId,
             },
         };
-
-        // Sign and return the token
         jwt.sign(
             payload,
             secret,
