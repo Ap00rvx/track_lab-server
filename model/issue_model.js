@@ -29,7 +29,7 @@ const issueSchema = new mongoose.Schema({
     assignedTo: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
-        required: false // Can be null if not assigned
+        required: false
     },
     project: {
         type: mongoose.Schema.Types.ObjectId,

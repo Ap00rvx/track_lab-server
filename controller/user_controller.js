@@ -102,3 +102,18 @@ exports.loginUser = async (req, res) => {
         res.status(500).send({ error: 'Internal Server Error' }); 
     }
 };
+exports.profile = async (req,res) => {
+    try {
+        const user = req.user;
+        if(user ){
+            res.status(200).json({message : 'user profile', user : user});
+
+        }
+        else{
+            res.status(404).json({message : 'user not found'});
+        }
+    }catch(Err){
+        console.log(Err);
+        res.status(500).send({'status':'failed','message':'Internal Server Error'})
+    }
+}
