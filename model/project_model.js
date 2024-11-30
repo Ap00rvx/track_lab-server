@@ -14,20 +14,25 @@ const projectSchema = new mongoose.Schema({
     link:{
         type: String,
         required: false,
-        trim:false
+        trim:false,
+        default: '',
     },
     version:{
         type: String,
         required: false,  
+        default :'0.0.1',
     },
     
     startDate: {
         type: Date,
-        required: true
+        required: true,
+        default: Date.now
     },
     endDate: {
         type: Date,
-        required: false
+        required: false,
+        default: null
+
     },
     status: {
         type: String,
@@ -42,7 +47,8 @@ const projectSchema = new mongoose.Schema({
     projectManager: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
-        required: true
+        required: false,
+        default: null
     },
     contributors: [
         {

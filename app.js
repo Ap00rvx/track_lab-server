@@ -3,6 +3,7 @@ const db= require('./config/database_connection')
 const dotenv = require("dotenv")
 const userRoutes = require("./routes/user_routes");
 const orgRoutes = require("./routes/organization_routes");
+const projectRoutes = require("./routes/project_routes");
 dotenv.config()
 
 
@@ -15,6 +16,7 @@ app.use(express.json());
 
 app.use("/api/u/",userRoutes);
 app.use("/operable/org/",orgRoutes);
+app.use("/operable/org/p/",projectRoutes);
 
 app.get('/', (req, res) => res.json('Welcome to Track Lab!'))
 app.listen(port, () => console.log(`listening on port ${port}!`))
