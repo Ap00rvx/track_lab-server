@@ -134,3 +134,29 @@ exports.updateProject = async(req, res) => {
         res.status(500).json({"error":"Internal Server Error"});
     }
 }
+exports.updateComment = async(req, res) => {
+    const userId = req.user.id;
+    const {comment} = req.body;
+    const projectId  = req.header("projectId");
+    const project = await Project.findById(new ObjectId(projectId));
+    try {
+    if(!project){
+        return res.status(400).json({"error":"Project not found"});
+    }
+    const org = await Organization.findById(new ObjectId(project.organizationId));
+    if(!org){
+        return res.status(400).json({"error":"Organization not found"});
+    }
+    if(org.createdBy == userId || project.teamMembers.includes(userId) || project.createdBy == userId){
+        project.comments.push({user:userId,comment:comment});
+        await project.save();
+        return res.status(200).json({"message":"Comment added successfully","project":project});
+    }
+    else{
+        return res.status(401).json({"error":"Unauthorized access"});
+    }}
+    catch(err){
+        console.log(err);
+        res.status(500).json({"error":"Internal Server Error"});
+    }
+}
