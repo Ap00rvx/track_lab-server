@@ -202,3 +202,67 @@ exports.addTaskToProject = async(req, res) => {
         res.status(500).json({"error":"Internal Server Error"});
     }
 }
+exports.getAllTasksForProject = async(req, res) => {
+    try{
+        const projectId  = req.header("projectId");
+        const project = await Project.findById(new ObjectId(projectId));
+        if(!project){
+            return res.status(400).json({"error":"Project not found"});
+        }
+        const org = await Organization.findById(new ObjectId(project.organizationId));
+        if(!org){
+            return res.status(400).json({"error":"Organization not found"});
+        }
+        const tasks  = await Task.find({projectId:projectId});
+        return res.status(200).json({"tasks":tasks});
+    }
+    catch(err){
+        console.log(err);
+        res.status(500).json({"error":"Internal Server Error"});
+    }
+}
+exports.updateTask = async(req, res) => {
+    try{
+        const creater = req.user.id; 
+        const taskId  = req.header("taskId");
+        const task = await Task.findById(new ObjectId(taskId));
+        if(!task){
+            return res.status(400).json({"error":"Task not found"});
+        }
+        const project = await Project.findById(new ObjectId(task.projectId));
+        if(!project){
+            return res.status(400).json({"error":"Project not found"});
+        }
+        const org = await Organization.findById(new ObjectId(project.organizationId));
+        if(!org){
+            return res.status(400).json({"error":"Organization not found"});
+        }
+        if(org.createdBy == creater || org.admins.includes(creater) || project.createdBy == creater ||project.teamMembers.includes(creater)){
+            const {name, description, dueDate, status, assignedTo} = req.body;
+            if(name){
+                task.name = name;
+            }
+            if(description){
+                task.description = description;
+            }
+            if(dueDate){
+                task.dueDate = dueDate;
+            }
+            if(status){
+                task.status = status;
+            }
+            if(assignedTo){
+                task.assignedTo = assignedTo;
+            }
+            await task.save();
+            res.status(200).json({"message":"Task updated successfully","task":task});
+        }
+        else{
+            return res.status(401).json({"error":"Unauthorized access"});
+        }
+    }
+    catch(err){
+        console.log(err);
+        res.status(500).json({"error":"Internal Server Error"});
+    }
+}
