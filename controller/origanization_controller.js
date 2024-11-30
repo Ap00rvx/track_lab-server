@@ -2,6 +2,7 @@ const  Organization = require('../model/organization_model'); // Update the path
 const User = require('../model/user_model'); //
 const mongoose = require('mongoose');
 const ObjectId = mongoose.Types.ObjectId;
+const Project = require('../model/project_model');
 
 exports.createOrganization = async (req, res) => {
     const { name, description, address, contact, logo, members, projects, industry, tags } = req.body;
@@ -272,6 +273,25 @@ exports.getOrgMembers = async(req,res) => {
                 organizationId: member.organizationId,
             })),
         });
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+}
+exports.getOrgProjects = async(req,res) => {
+    const  orgId  = req.header("id");
+    if (!orgId) {
+        return res.status(400).json({ error: 'Organization ID is required' });
+    }
+    try {
+        const organization = await Organization.findById(new ObjectId(orgId));
+        if (!organization) {
+            return res.status(404).json({ error: 'Organization not found' });
+        }
+        const projects = await Project.find({ _id: { $in: organization.projects } });
+        return res.status(200).json({
+            projects: projects});
+        
     } catch (err) {
         console.error(err.message);
         res.status(500).json({ error: 'Internal Server Error' });

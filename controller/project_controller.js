@@ -61,3 +61,65 @@ exports.getAllProjectsForOrganization = async(req, res) => {
         res.status(500).json({"error":"Internal Server Error"});
     }
 }
+exports.updateProject = async(req, res) => {
+    try{
+        const creater = req.user.id; 
+        const projectId  = req.header("projectId");
+        const project = await Project.findById(new ObjectId(projectId));
+        if(!project){
+            return res.status(400).json({"error":"Project not found"});
+        }
+        const org = await Organization.findById(new ObjectId(project.organizationId));
+        if(!org){
+            return res.status(400).json({"error":"Organization not found"});
+        }
+        if(org.createdBy == creater || org.admins.includes(creater) || project.createdBy == creater){
+            const {name, description, startDate, endDate, status, projectManager, contributors, teamMembers ,budget, priority,tags} = req.body;
+            if(name){
+                project.name = name;
+            }
+            if(description){
+                project.description = description;
+            }
+            if(startDate){
+                project.startDate = startDate;
+            }
+            if(endDate){
+                project.endDate = endDate;
+            }
+            if(status){
+                project.status = status;
+            }
+            if(projectManager){
+                project.projectManager = projectManager;
+                project.teamMembers.push(projectManager);
+            }
+            if(contributors){
+                project.contributors = contributors;
+            }
+            if(teamMembers){
+                project.teamMembers = teamMembers;
+                project.teamMembers.push(projectManager);
+            }
+            if(budget){
+                project.budget = budget;
+            }
+            if(priority){
+                project.priority = priority;
+            }
+            if(tags){
+                project.tags = tags;
+            }
+
+            await project.save();
+            res.status(200).json({"message":"Project updated successfully","project":project});
+        
+        }
+        else{
+            return res.status(401).json({"error":"Unauthorized access"});
+        }
+    }catch(err){
+        console.log(err);
+        res.status(500).json({"error":"Internal Server Error"});
+    }
+}
