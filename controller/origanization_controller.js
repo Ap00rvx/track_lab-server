@@ -23,7 +23,7 @@ exports.createOrganization = async (req, res) => {
             address,
             contact,
             logo: logo || '',
-            members: members || [],
+            members: members || [createdBy],
             projects: projects || [],
             admins: [createdBy], 
             createdBy,
@@ -34,6 +34,7 @@ exports.createOrganization = async (req, res) => {
 
         await newOrganization.save();
         user.organizationId = newOrganization._id;
+        user.role = 'admin';
         await user.save();
         res.status(201).json({
             message: 'Organization created successfully',
@@ -147,6 +148,89 @@ exports.deleteMember = async(req,res) => {
         await organization.save();
         res.status(200).json({
             message: 'Member removed successfully',
+            organization: {
+                id: organization._id,
+                name: organization.name,
+                description: organization.description,
+                address: organization.address,
+                contact: organization.contact,
+                logo: organization.logo,
+                members: organization.members,
+                projects: organization.projects,
+                admins: organization.admins,
+                createdBy: organization.createdBy,
+                establishedDate: organization.establishedDate,
+                industry: organization.industry,
+                tags: organization.tags,
+            },
+        });
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+}
+exports.updateMemberRole = async(req,res) => {
+    const { memberId, orgId, role } = req.body;
+    const createdBy = req.user.id;
+    if (!orgId) {
+        return res.status(400).json({ error: 'Organization ID is required' });
+    }
+    if (!memberId) {
+        return res.status(400).json({ error: 'Member ID is required' });
+    }
+    if (!role) {
+        return res.status(400).json({ error: 'Role is required' });
+    }
+    try {
+        const organization = await Organization.findById(new ObjectId(orgId));
+        if (!organization) {
+            return res.status(404).json({ error: 'Organization not found' });
+        }
+        if (!organization.admins.includes(createdBy)) {
+            return res.status(403).json({ error: 'Unauthorized' });
+        }
+        const user = await User.findById(new ObjectId(memberId));
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+        if (!organization.members.includes(memberId)) {
+            return res.status(400).json({ error: 'User is not a member' });
+        }
+        if (organization.admins.includes(memberId)) {
+            return res.status(400).json({ error: 'Cannot change role of an admin' });
+        }
+        if(role == "admin"){
+            organization.admins.push(memberId);
+            await organization.save();
+        }
+        user.role = role;
+        await user.save();
+        res.status(200).json({
+            message: 'Member role updated successfully',
+            user: {
+                id: user._id,
+                name: user.name,
+                email: user.email,
+                role: user.role,
+                organizationId: user.organizationId,
+            },
+        });
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+}
+exports.getOrganization = async(req,res) => {
+    const  orgId  = req.header("id");
+    if (!orgId) {
+        return res.status(400).json({ error: 'Organization ID is required' });
+    }
+    try {
+        const organization = await Organization.findById(new ObjectId(orgId));
+        if (!organization) {
+            return res.status(404).json({ error: 'Organization not found' });
+        }
+        res.status(200).json({
             organization: {
                 id: organization._id,
                 name: organization.name,
