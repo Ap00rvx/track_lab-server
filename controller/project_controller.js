@@ -2,6 +2,7 @@ const  Organization = require('../model/organization_model'); // Update the path
 const User = require('../model/user_model'); //
 const Project = require("../model/project_model"); 
 const mongoose = require('mongoose');
+const Task = require("../model/task_model");
 const ObjectId = mongoose.Types.ObjectId;
 
 
@@ -161,6 +162,42 @@ exports.updateComment = async(req, res) => {
         return res.status(401).json({"error":"Unauthorized access"});
     }}
     catch(err){
+        console.log(err);
+        res.status(500).json({"error":"Internal Server Error"});
+    }
+}
+exports.addTaskToProject = async(req, res) => {
+    try{
+        const creater = req.user.id; 
+        const projectId  = req.header("projectId");
+        const project = await Project.findById(new ObjectId(projectId));
+        if(!project){
+            return res.status(400).json({"error":"Project not found"});
+        }
+        const org = await Organization.findById(new ObjectId(project.organizationId));
+        if(!org){
+            return res.status(400).json({"error":"Organization not found"});
+        }
+        if(org.createdBy == creater || org.admins.includes(creater) || project.createdBy == creater ||project.teamMembers.includes(creater)){
+            const {name, description, dueDate, status, assignedTo} = req.body;
+            if(!name || !description || !dueDate  ){
+                return res.status(400).json({"error":"All fields are required"});
+            }
+            const task = new Task({
+                name:name,
+                description:description,
+                dueDate:dueDate,
+                projectId:projectId,
+                createdBy:creater,
+                assignedTo:assignedTo || null ,
+                status:status,
+            });
+            await task.save();
+            project.tasks.push(task._id);
+            await project.save();
+            res.status(201).json({"message":"Task created successfully","task":task});
+        }
+    }catch(err){
         console.log(err);
         res.status(500).json({"error":"Internal Server Error"});
     }

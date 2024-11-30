@@ -72,6 +72,11 @@ const projectSchema = new mongoose.Schema({
         ref: 'Organization',
         required: true
     },
+    tasks: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Task'
+        }],    
     budget: {
         type: Number,
         required: false,
