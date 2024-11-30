@@ -92,7 +92,18 @@ exports.updateProject = async(req, res) => {
             }
             if(projectManager){
                 project.projectManager = projectManager;
-                project.teamMembers.push(projectManager);
+                let user = await User.findById(new ObjectId(projectManager));
+                if(!user){
+                    return res.status(400).json({"error":"Project Manager not found"});
+                }
+                user.role = "project manager";
+                if(!user.projectIds.includes(project._id)){
+                user.projectIds.push(project._id);}
+                await user.save();
+                if(!project.teamMembers.includes(projectManager)){
+                    project.teamMembers.push(projectManager);
+                }
+             
             }
             if(contributors){
                 project.contributors = contributors;

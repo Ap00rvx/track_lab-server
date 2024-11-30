@@ -264,14 +264,9 @@ exports.getOrgMembers = async(req,res) => {
             return res.status(404).json({ error: 'Organization not found' });
         }
         const members = await User.find({ _id: { $in: organization.members } });
-        res.status(200).json({
-            members: members.map((member) => ({
-                id: member._id,
-                name: member.name,
-                email: member.email,
-                role: member.role,
-                organizationId: member.organizationId,
-            })),
+        return res.status(200).json({
+            members: members,
+            
         });
     } catch (err) {
         console.error(err.message);
