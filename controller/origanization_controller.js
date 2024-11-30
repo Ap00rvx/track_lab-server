@@ -1,5 +1,7 @@
 const  Organization = require('../model/organization_model'); // Update the path as needed
-const User = require('../model/user_model'); // Update the path as needed
+const User = require('../model/user_model'); //
+const mongoose = require('mongoose');
+const ObjectId = mongoose.Types.ObjectId;
 
 exports.createOrganization = async (req, res) => {
     const { name, description, address, contact, logo, members, projects, industry, tags } = req.body;
@@ -110,6 +112,57 @@ exports.updateMembers = async (req, res) => {
             },
         });
     
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+}
+exports.deleteMember = async(req,res) => {
+    const { memberId, orgId } = req.body;
+    const createdBy = req.user.id;
+    if (!orgId) {
+        return res.status(400).json({ error: 'Organization ID is required' });
+    }
+    if (!memberId) {
+        return res.status(400).json({ error: 'Member ID is required' });
+    }
+    try {
+        const organization = await Organization.findById(new ObjectId(orgId));
+        if (!organization) {
+            return res.status(404).json({ error: 'Organization not found' });
+        }
+        if (!organization.admins.includes(createdBy)) {
+            return res.status(403).json({ error: 'Unauthorized' });
+        }
+        const user = await User.findById(new ObjectId(memberId));
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+        if (!organization.members.includes(memberId)) {
+            return res.status(400).json({ error: 'User is not a member' });
+        }
+        user.organizationId = null;
+        await user.save();
+        organization.members = organization.members.filter((member) => member != memberId);
+        await organization.save();
+        res.status(200).json({
+            message: 'Member removed successfully',
+            organization: {
+                id: organization._id,
+                name: organization.name,
+                description: organization.description,
+                address: organization.address,
+                contact: organization.contact,
+                logo: organization.logo,
+                members: organization.members,
+                projects: organization.projects,
+                admins: organization.admins,
+                createdBy: organization.createdBy,
+                establishedDate: organization.establishedDate,
+                industry: organization.industry,
+                tags: organization.tags,
+            },
+        });
     } catch (err) {
         console.error(err.message);
         res.status(500).json({ error: 'Internal Server Error' });
