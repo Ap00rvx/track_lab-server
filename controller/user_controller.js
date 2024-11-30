@@ -121,7 +121,7 @@ exports.updateProfile = async (req,res) => {
     try {
         const user = req.user;
         if(user){
-            const {username,fullName,email} = req.body;
+            const {username,fullName,email , image} = req.body;
             if(username){
                 user.username = username;
             }
@@ -130,6 +130,9 @@ exports.updateProfile = async (req,res) => {
             }
             if(email){
                 user.email = email;
+            }
+            if(image){
+                user.image = image;
             }
             await user.save();
             res.status(200).json({message : 'user profile updated', user : user});
