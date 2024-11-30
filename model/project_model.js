@@ -22,6 +22,11 @@ const projectSchema = new mongoose.Schema({
         required: false,  
         default :'0.0.1',
     },
+    progress:{
+        type: Number,
+        required: false,
+        default: 0,
+    },
     
     startDate: {
         type: Date,

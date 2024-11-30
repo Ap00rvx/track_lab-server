@@ -117,3 +117,43 @@ exports.profile = async (req,res) => {
         res.status(500).send({'status':'failed','message':'Internal Server Error'})
     }
 }
+exports.updateProfile = async (req,res) => {
+    try {
+        const user = req.user;
+        if(user){
+            const {username,fullName,email} = req.body;
+            if(username){
+                user.username = username;
+            }
+            if(fullName){
+                user.name = fullName;
+            }
+            if(email){
+                user.email = email;
+            }
+            await user.save();
+            res.status(200).json({message : 'user profile updated', user : user});
+        }
+        else{
+            res.status(404).json({message : 'user not found'});
+        }
+    }catch(Err){
+        console.log(Err);
+        res.status(500).send({'status':'failed','message':'Internal Server Error'})
+    }
+}
+exports.fetchProfiles = async (req,res) => {
+    const {ids} = req.body;
+    try {
+        const users = await User.find({_id:{$in:ids}});
+        if(users){
+            res.status(200).json({message : 'users found', users : users});
+        }
+        else{
+            res.status(404).json({message : 'users not found'});
+        }
+}catch(err){
+    console.log(err);
+    res.status(500).send({'status':'failed','message':'Internal Server Error'})
+}
+}

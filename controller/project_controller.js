@@ -136,7 +136,7 @@ exports.updateProject = async(req, res) => {
 }
 exports.updateComment = async(req, res) => {
     const userId = req.user.id;
-    const {comment} = req.body;
+    const {comment , progress} = req.body;
     const projectId  = req.header("projectId");
     const project = await Project.findById(new ObjectId(projectId));
     try {
@@ -148,7 +148,12 @@ exports.updateComment = async(req, res) => {
         return res.status(400).json({"error":"Organization not found"});
     }
     if(org.createdBy == userId || project.teamMembers.includes(userId) || project.createdBy == userId){
+        if(comment){
         project.comments.push({user:userId,comment:comment});
+        }
+        if(progress){
+        project.progress = progress;
+        }
         await project.save();
         return res.status(200).json({"message":"Comment added successfully","project":project});
     }
