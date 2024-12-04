@@ -10,12 +10,14 @@
   "description": "",
   "dependencies": {
     "bcrypt": "^5.1.1",
+    "bluebird": "^3.7.2",
     "dotenv": "^16.4.5",
     "express": "^4.21.1",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.8.3",
     "node-mailer": "^0.1.1",
     "nodemon": "^3.1.7",
+    "socket.io": "^4.8.1",
     "tracklab": "file:",
     "ts-node": "^10.9.2"
   }
